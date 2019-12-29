@@ -4,9 +4,35 @@
 
 using namespace std;
 
-string encrypted(string password)
+string formatData(string data) {
+	
+	string newData = data.substr(0, 64);
+	
+	return newData;
+}
+
+string GetOutputFromCommand(string cmd) {
+	string data;
+	FILE * stream;
+	const int max_buffer = 256;
+	char buffer[max_buffer];
+	cmd.append(" 2>&1");
+
+	stream = popen(cmd.c_str(), "r");
+	if (stream)
+	{
+		while (!feof(stream))
+			if (fgets(buffer, max_buffer, stream) != NULL)
+				data.append(buffer);
+		pclose(stream);
+	}
+	// modify data
+	return(formatData(data));
+}
+
+string hashSHA256(string password)
 {
-	return password;
+	return (GetOutputFromCommand("echo -n "+password+"| sha256sum"));
 }
 
 void manipulateHelper(string password, int toleranceLevel, vector<string> &result, string prefix)
@@ -52,23 +78,36 @@ void manipulatePassword(string password, int toleranceLevel, vector<string> &res
 bool isDuplicate(string newPassword)
 {
 	bool result = false;
-	vector<string> passDb;
-	int passDbSize = passDb.size();
-	for(int i=0 ; i<=passDbSize-1 ; i++)
+	
+	FILE * fpIn;
+	fpIn = fopen("passwords.txt", "r");
+	if(fpIn==NULL)
 	{
-		if(encrypted(newPassword) == passDb[i])
+		cout << "couldn't open file" << endl;
+		// throw exception
+		//return (-1);
+	}
+	char linestr[64];
+	
+	while(!feof(fpIn))
+	{
+		fgets(linestr, 64, fpIn);
+		
+		if(linestr == hashSHA256(newPassword))
 		{
 			result = true;
 			break;
-		}
+		}	
 	}
+	fclose(fpIn);
+
 	return result;
 }
 
 int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimilarity)
 {
 	int tolerance = -1;
-	// assume passDb has encrypted password.
+	
 	if(isDuplicate(newPassword))
 		return 0;
 
@@ -82,7 +121,7 @@ int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimila
 		// function to pick toleranceLevel number of characters.
 		// function to manipulate them.
 		vector<string> result;
-		manipulatePassword(password, toleranceLevel, result);
+		manipulatePassword(newPassword, toleranceLevel, result);
 		
 		for(int i=0 ; i<=result.size()-1 ; i++)
 		{
@@ -97,6 +136,24 @@ int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimila
 			break;
 	}
 	return tolerance;
+}
+
+void store(string newPassword)
+{
+	FILE * fpOut;
+	fpOut = fopen("passwords.txt", "a");
+	if(fpOut==NULL)
+	{
+		cout << "couldn't open file" << endl;
+		// throw exception
+		//return (-1);
+	}
+	
+	fputs("\n", fpOut);
+	fputs(hashSHA256(newPassword).c_str(), fpOut);
+	fclose(fpOut);
+
+	return;
 }
 
 int main() {
@@ -115,11 +172,11 @@ int main() {
 		cout << "Entered new password is: " << newPassword << endl;
 		cout << "Entered confirm password is: " << confirmNewPassword << endl;
 	
-		// make basic checks on password;
+		// make basic checks on password:
 	
 		// check if old password is correct
 		// check if newPassword and confirmPassword match
-		// check if newPassword satifies criteria for strong password
+		// check if newPassword satifies criteria for strong password..regex
 		// check if new password is tolerably distinct from old passwords.
 		const int toleranceOfSimilarity = 3;
 		int tolerance = checkTolerance(newPassword, oldPassword, toleranceOfSimilarity);
@@ -127,6 +184,7 @@ int main() {
 			cout << "More than " << toleranceOfSimilarity << " characters should be different than previous passwords." << endl;
 		else
 		{
+			store(newPassword);
 			cout << "Password changed successfully." << endl;
 			break;
 		}
