@@ -5,9 +5,7 @@
 using namespace std;
 
 string formatData(string data) {
-	
 	string newData = data.substr(0, 64);
-	
 	return newData;
 }
 
@@ -17,7 +15,7 @@ string GetOutputFromCommand(string cmd) {
 	const int max_buffer = 256;
 	char buffer[max_buffer];
 	cmd.append(" 2>&1");
-
+	//cout << "command is:" << cmd << endl;
 	stream = popen(cmd.c_str(), "r");
 	if (stream)
 	{
@@ -32,7 +30,7 @@ string GetOutputFromCommand(string cmd) {
 
 string hashSHA256(string password)
 {
-	return (GetOutputFromCommand("echo -n "+password+"| sha256sum"));
+	return (GetOutputFromCommand("echo -n "+password+" | sha256sum"));
 }
 
 void manipulateHelper(string password, int toleranceLevel, vector<string> &result, string prefix)
@@ -51,7 +49,7 @@ void manipulateHelper(string password, int toleranceLevel, vector<string> &resul
 		int substrLen = stringSize-i-1;
 		int traversedLen = stringSize - substrLen;
 
-		for(int ascii = 32 ; ascii<=126 ; ascii++)
+		for(int ascii = 97 ; ascii<=122 ; ascii++)
 		{
 			char c = ascii;
 			password[i] = c;
@@ -75,10 +73,36 @@ void manipulatePassword(string password, int toleranceLevel, vector<string> &res
 	return;
 }
 
-bool isDuplicate(string newPassword)
+bool isDuplicate(string newPassword, FILE * fpIn)
 {
 	bool result = false;
 	
+	
+	char linestr[65];
+	rewind(fpIn);
+	while(!feof(fpIn))
+	{
+		fgets(linestr, 65, fpIn);
+		string hashResult = hashSHA256(newPassword);
+		cout << "linestr is:" << linestr << endl;
+		cout << "hashSHA256(newPassword) is:" << hashResult << endl;
+		if(linestr == hashResult)
+		{
+			result = true;
+			break;
+		}
+		// avoid comparison with \n
+		fgets(linestr, 65, fpIn);
+	}
+	
+
+	return result;
+}
+
+int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimilarity)
+{
+	int tolerance = -1;
+
 	FILE * fpIn;
 	fpIn = fopen("passwords.txt", "r");
 	if(fpIn==NULL)
@@ -87,28 +111,8 @@ bool isDuplicate(string newPassword)
 		// throw exception
 		//return (-1);
 	}
-	char linestr[64];
 	
-	while(!feof(fpIn))
-	{
-		fgets(linestr, 64, fpIn);
-		
-		if(linestr == hashSHA256(newPassword))
-		{
-			result = true;
-			break;
-		}	
-	}
-	fclose(fpIn);
-
-	return result;
-}
-
-int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimilarity)
-{
-	int tolerance = -1;
-	
-	if(isDuplicate(newPassword))
+	if(isDuplicate(newPassword, fpIn))
 		return 0;
 
 	bool duplicate = false;
@@ -125,7 +129,8 @@ int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimila
 		
 		for(int i=0 ; i<=result.size()-1 ; i++)
 		{
-			if(isDuplicate(result[i]))
+			cout << "Manipulated password is:" << result[i] << endl;
+			if(isDuplicate(result[i], fpIn))
 			{
 				tolerance = toleranceLevel;
 				duplicate = true;
@@ -135,6 +140,7 @@ int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimila
 		if(duplicate)
 			break;
 	}
+	fclose(fpIn);
 	return tolerance;
 }
 
@@ -178,7 +184,7 @@ int main() {
 		// check if newPassword and confirmPassword match
 		// check if newPassword satifies criteria for strong password..regex
 		// check if new password is tolerably distinct from old passwords.
-		const int toleranceOfSimilarity = 3;
+		const int toleranceOfSimilarity = 2;
 		int tolerance = checkTolerance(newPassword, oldPassword, toleranceOfSimilarity);
 		if(tolerance != -1)
 			cout << "More than " << toleranceOfSimilarity << " characters should be different than previous passwords." << endl;
