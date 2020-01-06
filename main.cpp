@@ -4,196 +4,72 @@
 
 using namespace std;
 
-string formatData(string data) {
-	string newData = data.substr(0, 64);
-	return newData;
-}
+#include "logger.hpp"
+#include "ToleranceCheck.hpp"
+#include "ToleranceCheckDatabase.hpp"
 
-string GetOutputFromCommand(string cmd) {
-	string data;
-	FILE * stream;
-	const int max_buffer = 256;
-	char buffer[max_buffer];
-	cmd.append(" 2>&1");
-	//cout << "command is:" << cmd << endl;
-	stream = popen(cmd.c_str(), "r");
-	if (stream)
-	{
-		while (!feof(stream))
-			if (fgets(buffer, max_buffer, stream) != NULL)
-				data.append(buffer);
-		pclose(stream);
-	}
-	// modify data
-	return(formatData(data));
-}
-
-string hashSHA256(string password)
+bool checkPassword(string oldPassword, string newPassword, string confirmNewPassword)
 {
-	return (GetOutputFromCommand("echo -n "+password+" | sha256sum"));
-}
+	cerr << "inside checkPassword:" << endl;
+	cerr << "Old password is: " << oldPassword << endl;
+	cerr << "New password is: " << newPassword << endl;
+	cerr << "Confirm password is: " << confirmNewPassword << endl;
 
-void manipulateHelper(string password, int toleranceLevel, vector<string> &result, string prefix)
-{
-	if(toleranceLevel == 0)
-	{
-		password.insert(0, prefix);
-		result.push_back(password);
-		return;
-	}
-	//vector<string> result;
-	int stringSize = password.size();
-	for(int i=0 ; i<=stringSize-toleranceLevel ; i++)
-	{
-		char temp = password[i];
-		int substrLen = stringSize-i-1;
-		int traversedLen = stringSize - substrLen;
-
-		for(int ascii = 97 ; ascii<=122 ; ascii++)
-		{
-			char c = ascii;
-			password[i] = c;
-			// make new prefix
-			
-
-			string appendedPrefix = password.substr(0,traversedLen);
-			string newPrefix = prefix;
-			newPrefix.append(appendedPrefix);
-		
-			manipulateHelper(password.substr(i+1, substrLen), toleranceLevel-1, result, newPrefix);
-		}
-		password[i] = temp;
-	}
-	return;
-}
-
-void manipulatePassword(string password, int toleranceLevel, vector<string> &result)
-{
-	manipulateHelper(password, toleranceLevel, result, "");
-	return;
-}
-
-bool isDuplicate(string newPassword, FILE * fpIn)
-{
 	bool result = false;
+	// make basic checks on password:
 	
-	
-	char linestr[65];
-	rewind(fpIn);
-	while(!feof(fpIn))
+	// check if old password is correct
+	// check if newPassword and confirmPassword match
+	// check if newPassword satifies criteria for strong password..regex
+	// check if new password is tolerably distinct from old passwords.
+	const int toleranceOfSimilarity = 2;
+	int tolerance = checkTolerance(newPassword, oldPassword, toleranceOfSimilarity);
+	if(tolerance != -1)
+		cout << "More than " << toleranceOfSimilarity << " characters should be different than previous passwords." << endl;
+	else
 	{
-		fgets(linestr, 65, fpIn);
-		string hashResult = hashSHA256(newPassword);
-		cout << "linestr is:" << linestr << endl;
-		cout << "hashSHA256(newPassword) is:" << hashResult << endl;
-		if(linestr == hashResult)
-		{
-			result = true;
-			break;
-		}
-		// avoid comparison with \n
-		fgets(linestr, 65, fpIn);
+		storePassword(newPassword);
+		cout << "Password changed successfully." << endl;
+		result = true;
 	}
-	
-
 	return result;
 }
 
-int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimilarity)
+int main()
 {
-	int tolerance = -1;
-
-	FILE * fpIn;
-	fpIn = fopen("passwords.txt", "r");
-	if(fpIn==NULL)
-	{
-		cout << "couldn't open file" << endl;
-		// throw exception
-		//return (-1);
-	}
+	// redirect cerr to log.txt
+	fstream file; 
+    file.open("log.txt", ios::out);
+    streambuf * stream_buffer_cerr = redirectCerrToFile(file, cerr);
 	
-	if(isDuplicate(newPassword, fpIn))
-		return 0;
+    cerr << endl << "inside main:" << endl;
 
-	bool duplicate = false;
-	
-	for(int toleranceLevel = 1 ; toleranceLevel <= toleranceOfSimilarity ; toleranceLevel++)
-	{
-		
-		// pick toleranceLevel number of characters, change them, and verify.
-		
-		// function to pick toleranceLevel number of characters.
-		// function to manipulate them.
-		vector<string> result;
-		manipulatePassword(newPassword, toleranceLevel, result);
-		
-		for(int i=0 ; i<=result.size()-1 ; i++)
-		{
-			cout << "Manipulated password is:" << result[i] << endl;
-			if(isDuplicate(result[i], fpIn))
-			{
-				tolerance = toleranceLevel;
-				duplicate = true;
-				break;
-			}	
-		}
-		if(duplicate)
-			break;
-	}
-	fclose(fpIn);
-	return tolerance;
-}
+	const int PASSWORD_LENGTH = 20;
 
-void store(string newPassword)
-{
-	FILE * fpOut;
-	fpOut = fopen("passwords.txt", "a");
-	if(fpOut==NULL)
-	{
-		cout << "couldn't open file" << endl;
-		// throw exception
-		//return (-1);
-	}
-	
-	fputs("\n", fpOut);
-	fputs(hashSHA256(newPassword).c_str(), fpOut);
-	fclose(fpOut);
-
-	return;
-}
-
-int main() {
-	
-	char oldPassword[20];
-	char newPassword[20];
-	char confirmNewPassword[20];
+	char oldPassword[PASSWORD_LENGTH];
+	char newPassword[PASSWORD_LENGTH];
+	char confirmNewPassword[PASSWORD_LENGTH];
 	
 	while(true)
 	{
-		cin.getline(oldPassword, 20);
-		cin.getline(newPassword, 20);
-		cin.getline(confirmNewPassword, 20);
+		cout << "Enter old password:";
+		cin.getline(oldPassword, PASSWORD_LENGTH);
+		cout << "Enter new password:";
+		cin.getline(newPassword, PASSWORD_LENGTH);
+		cout << "Please confirm password:";
+		cin.getline(confirmNewPassword, PASSWORD_LENGTH);
 
-		cout << "Entered old password is: " << oldPassword << endl;
-		cout << "Entered new password is: " << newPassword << endl;
-		cout << "Entered confirm password is: " << confirmNewPassword << endl;
-	
-		// make basic checks on password:
-	
-		// check if old password is correct
-		// check if newPassword and confirmPassword match
-		// check if newPassword satifies criteria for strong password..regex
-		// check if new password is tolerably distinct from old passwords.
-		const int toleranceOfSimilarity = 2;
-		int tolerance = checkTolerance(newPassword, oldPassword, toleranceOfSimilarity);
-		if(tolerance != -1)
-			cout << "More than " << toleranceOfSimilarity << " characters should be different than previous passwords." << endl;
-		else
-		{
-			store(newPassword);
-			cout << "Password changed successfully." << endl;
+		cerr << "Entered old password is: " << oldPassword << endl;
+		cerr << "Entered new password is: " << newPassword << endl;
+		cerr << "Entered confirm password is: " << confirmNewPassword << endl;
+
+		if(checkPassword(oldPassword, newPassword, confirmNewPassword))
 			break;
-		}
 	}
+	
+	// redirect cerr back to console
+	redirectCerrToConsole(cerr, stream_buffer_cerr);
+	file.close();
+
 	return 0;
 }
