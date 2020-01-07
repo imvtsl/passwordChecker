@@ -20,8 +20,9 @@ bool checkPassword(string oldPassword, string newPassword, string confirmNewPass
 	
 	// check if old password is correct
 	// check if newPassword and confirmPassword match
-	// check if newPassword satifies criteria for strong password..regex
+	// check if newPassword satifies criteria for strong password
 	// check if new password is tolerably distinct from old passwords.
+	// following code should be run only if all above conditions are satisfied.
 	const int toleranceOfSimilarity = 2;
 	int tolerance = checkTolerance(newPassword, oldPassword, toleranceOfSimilarity);
 	if(tolerance != -1)

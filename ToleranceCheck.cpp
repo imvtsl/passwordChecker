@@ -10,7 +10,7 @@ using namespace std;
 void manipulateHelper(string password, int toleranceLevel, vector<string> &result, string prefix)
 {
 	cerr << "inside manipulateHelper:" << endl;
-	cerr << "password is:" << oldPassword << endl;
+	cerr << "password is:" << password << endl;
 	cerr << "tolerance level is:" << toleranceLevel << endl;
 	cerr << "prefix is:" << prefix << endl;
 
