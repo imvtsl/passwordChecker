@@ -3,7 +3,7 @@
 
 using namespace std;
 
-bool isDuplicate(string newPassword, FILE * fpIn);
+bool isDuplicate(string const &newPassword, FILE * fpIn);
 
-void storePassword(string newPassword);
+void storePassword(string const &newPassword);
 

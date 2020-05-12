@@ -7,4 +7,4 @@ string formatData(string data);
 
 string GetOutputFromCommand(string cmd);
 
-string hashSHA256(string password);
+string hashSHA256(string const &password);

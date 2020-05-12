@@ -40,7 +40,7 @@ string GetOutputFromCommand(string cmd)
 	return(formatData(data));
 }
 
-string hashSHA256(string password)
+string hashSHA256(string const &password)
 {
 	return (GetOutputFromCommand("echo -n "+password+" | sha256sum"));
 }

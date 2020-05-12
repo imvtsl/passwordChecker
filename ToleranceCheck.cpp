@@ -51,13 +51,13 @@ void manipulateHelper(string password, int toleranceLevel, vector<string> &resul
 	return;
 }
 
-void manipulatePassword(string password, int toleranceLevel, vector<string> &result)
+void manipulatePassword(string const &password, int toleranceLevel, vector<string> &result)
 {
 	manipulateHelper(password, toleranceLevel, result, "");
 	return;
 }
 
-int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimilarity)
+int checkTolerance(string const &newPassword, string const &oldPassword, int toleranceOfSimilarity)
 {
 	cerr << "inside checkTolerance:" << endl;
 	cerr << "Old password is:" << oldPassword << endl;

@@ -8,7 +8,7 @@ using namespace std;
 #include "ToleranceCheck.hpp"
 #include "ToleranceCheckDatabase.hpp"
 
-bool checkPassword(string oldPassword, string newPassword, string confirmNewPassword)
+bool checkPassword(string const &oldPassword, string const &newPassword, string const &confirmNewPassword)
 {
 	cerr << "inside checkPassword:" << endl;
 	cerr << "Old password is: " << oldPassword << endl;

@@ -6,7 +6,7 @@ using namespace std;
 #include "ToleranceCheckDatabase.hpp"
 #include "ToleranceCheckHash.hpp"
 
-bool isDuplicate(string newPassword, FILE * fpIn)
+bool isDuplicate(string const &newPassword, FILE * fpIn)
 {
 	cerr << "inside isDuplicate:" << endl;
 	cerr << "new password is:" << newPassword << endl;
@@ -37,7 +37,7 @@ bool isDuplicate(string newPassword, FILE * fpIn)
 	return result;
 }
 
-void storePassword(string newPassword)
+void storePassword(string const &newPassword)
 {
 	cerr << "inside storePassword:" << endl;
 	cerr << "new password is:" << newPassword << endl;
