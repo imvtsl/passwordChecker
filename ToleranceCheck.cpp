@@ -58,23 +58,23 @@ void manipulatePassword(string const &password, int toleranceLevel, vector<strin
 	return;
 }
 
-int checkTolerance(string const &newPassword, string const &oldPassword, int toleranceOfSimilarity)
+int checkTolerance(string const &newPassword, int toleranceOfSimilarity)
 {
 	cerr << "inside checkTolerance:" << endl;
-	cerr << "Old password is:" << oldPassword << endl;
 	cerr << "New password is:" << newPassword << endl;
 	cerr << "tolerance of similarity is: " << toleranceOfSimilarity << endl;
 
 
 	int tolerance = toleranceOfSimilarity;
 
+	string passwordFile = "passwords.txt";
 	fstream file; 
-    file.open("passwords.txt");
+    file.open(passwordFile);
 	if(!file.is_open())
 	{
-		cout << "couldn't open file" << endl;
+		cerr << "couldn't open file" << endl;
 		// throw exception
-		return (-1);
+		throw ios::failure("Error while opening " + passwordFile);
 	}
 	
 	if(isDuplicate(newPassword, file))

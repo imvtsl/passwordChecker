@@ -21,7 +21,8 @@ void validateSHA256(string const &input)
 	}
 	else
 	{
-		cerr << "It is not a match." << endl;
+		//cerr << "It is not a match." << endl;
+		throw runtime_error("Not a valid SHA256 hash");
 	}
 
 	return;

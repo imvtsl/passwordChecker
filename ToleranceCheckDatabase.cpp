@@ -46,14 +46,15 @@ void storePassword(string const &newPassword)
 	cerr << "inside storePassword:" << endl;
 	cerr << "new password is:" << newPassword << endl;
 
+	string passwordFile = "passwords.txt";
 	fstream file;
-	file.open("passwords.txt", ios::app);
+	file.open(passwordFile, ios::app);
 	
 	if(!file.is_open())
 	{
 		cout << "couldn't open file" << endl;
 		// throw exception
-		return;
+		throw ios::failure("Error while opening " + passwordFile);
 	}
 	
 	string hashResult = hashSHA256(newPassword);

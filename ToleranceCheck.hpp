@@ -8,4 +8,4 @@ void manipulateHelper(string password, int toleranceLevel, vector<string> &resul
 
 void manipulatePassword(string const &password, int toleranceLevel, vector<string> &result);
 
-int checkTolerance(string const &newPassword, string const &oldPassword, int toleranceOfSimilarity);
+int checkTolerance(string const &newPassword, int toleranceOfSimilarity);
