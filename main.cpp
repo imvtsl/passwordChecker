@@ -64,19 +64,17 @@ int main()
 	
     cerr << endl << "inside main:" << endl;
 
-	const int PASSWORD_LENGTH = 20;
-
-	char oldPassword[PASSWORD_LENGTH];
-	char newPassword[PASSWORD_LENGTH];
-	char confirmNewPassword[PASSWORD_LENGTH];
+	string oldPassword;
+	string newPassword;
+	string confirmNewPassword;
 	
 	
 	cout << "Enter old password:";
-	cin.getline(oldPassword, PASSWORD_LENGTH);
+	getline(cin, oldPassword);
 	cout << "Enter new password:";
-	cin.getline(newPassword, PASSWORD_LENGTH);
+	getline(cin, newPassword);
 	cout << "Please confirm password:";
-	cin.getline(confirmNewPassword, PASSWORD_LENGTH);
+	getline(cin, confirmNewPassword);
 
 	cerr << "Entered old password is: " << oldPassword << endl;
 	cerr << "Entered new password is: " << newPassword << endl;
