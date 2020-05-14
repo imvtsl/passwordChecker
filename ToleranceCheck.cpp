@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -51,32 +52,32 @@ void manipulateHelper(string password, int toleranceLevel, vector<string> &resul
 	return;
 }
 
-void manipulatePassword(string password, int toleranceLevel, vector<string> &result)
+void manipulatePassword(string const &password, int toleranceLevel, vector<string> &result)
 {
 	manipulateHelper(password, toleranceLevel, result, "");
 	return;
 }
 
-int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimilarity)
+int checkTolerance(string const &newPassword, int toleranceOfSimilarity)
 {
 	cerr << "inside checkTolerance:" << endl;
-	cerr << "Old password is:" << oldPassword << endl;
 	cerr << "New password is:" << newPassword << endl;
 	cerr << "tolerance of similarity is: " << toleranceOfSimilarity << endl;
 
 
-	int tolerance = -1;
+	int tolerance = toleranceOfSimilarity;
 
-	FILE * fpIn;
-	fpIn = fopen("passwords.txt", "r");
-	if(fpIn==NULL)
+	string passwordFile = "passwords.txt";
+	fstream file; 
+    file.open(passwordFile);
+	if(!file.is_open())
 	{
-		cout << "couldn't open file" << endl;
+		cerr << "couldn't open file" << endl;
 		// throw exception
-		//return (-1);
+		throw ios::failure("Error while opening " + passwordFile);
 	}
 	
-	if(isDuplicate(newPassword, fpIn))
+	if(isDuplicate(newPassword, file))
 		return 0;
 
 	bool duplicate = false;
@@ -94,19 +95,20 @@ int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimila
 		for(int i=0 ; i<=result.size()-1 ; i++)
 		{
 			cerr << "Manipulated password is:" << result[i] << endl;
-			if(isDuplicate(result[i], fpIn))
+			if(isDuplicate(result[i], file))
 			{
 				tolerance = toleranceLevel;
 				duplicate = true;
 				break;
 			}	
 		}
-		if(duplicate)
-			break;
+		if(duplicate) {
+			return tolerance;
+		}
 	}
-	fclose(fpIn);
+	file.close();
 
-	cerr << "Tolerance is:" << tolerance << endl;
+	cerr << "Tolerance is:" << (toleranceOfSimilarity+1) << endl;
 
-	return tolerance;
+	return (toleranceOfSimilarity+1);
 }

@@ -1,0 +1,6 @@
+*.out
+*.gch
+main
+*.o
+log.txt
+notes.txt

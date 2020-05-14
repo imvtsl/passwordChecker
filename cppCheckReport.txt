@@ -1,0 +1,11 @@
+ToleranceCheck.cpp:97:48: error: When i==result.size(), result[i] is out of bounds. [stlOutOfBounds]
+   cerr << "Manipulated password is:" << result[i] << endl;
+                                               ^
+ToleranceCheck.cpp:98:25: error: When i==result.size(), result[i] is out of bounds. [stlOutOfBounds]
+   if(isDuplicate(result[i], file))
+                        ^
+ToleranceCheckHash.cpp:31:7: style: The scope of the variable 'buffer' can be reduced. [variableScope]
+ char buffer[max_buffer];
+      ^
+nofile:0:0: information: Cppcheck cannot find all the include files (use --check-config for details) [missingIncludeSystem]
+

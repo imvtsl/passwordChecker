@@ -4,6 +4,7 @@
 using namespace std;
 
 #include "ToleranceCheckHash.hpp"
+#include "Validation.hpp"
 
 string formatData(string data)
 {
@@ -13,6 +14,9 @@ string formatData(string data)
 	string newData = data.substr(0, 64);
 	cerr << "new data is:" << newData << endl;
 
+	// validate newData
+	validateSHA256(newData);
+	
 	return newData;
 }
 
@@ -40,7 +44,7 @@ string GetOutputFromCommand(string cmd)
 	return(formatData(data));
 }
 
-string hashSHA256(string password)
+string hashSHA256(string const &password)
 {
 	return (GetOutputFromCommand("echo -n "+password+" | sha256sum"));
 }

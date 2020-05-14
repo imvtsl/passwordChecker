@@ -6,6 +6,6 @@ using namespace std;
 
 void manipulateHelper(string password, int toleranceLevel, vector<string> &result, string prefix);
 
-void manipulatePassword(string password, int toleranceLevel, vector<string> &result);
+void manipulatePassword(string const &password, int toleranceLevel, vector<string> &result);
 
-int checkTolerance(string newPassword, string oldPassword, int toleranceOfSimilarity);
+int checkTolerance(string const &newPassword, int toleranceOfSimilarity);
