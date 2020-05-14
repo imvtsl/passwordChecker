@@ -25,7 +25,9 @@ bool checkPassword(string const &oldPassword, string const &newPassword, string 
 	// following code should be run only if all above conditions are satisfied.
 	const int toleranceOfSimilarity = 2;
 	int tolerance = checkTolerance(newPassword, oldPassword, toleranceOfSimilarity);
-	if(tolerance != -1)
+	if(tolerance == -1)
+		cout << "Unable to open file" << endl;
+	else if(tolerance>=0 && tolerance <= toleranceOfSimilarity)
 		cout << "More than " << toleranceOfSimilarity << " characters should be different than previous passwords." << endl;
 	else
 	{

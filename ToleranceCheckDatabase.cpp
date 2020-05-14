@@ -1,36 +1,40 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
 #include "ToleranceCheckDatabase.hpp"
 #include "ToleranceCheckHash.hpp"
+#include "Validation.hpp"
 
-bool isDuplicate(string const &newPassword, FILE * fpIn)
+bool isDuplicate(string const &newPassword, fstream &file)
 {
 	cerr << "inside isDuplicate:" << endl;
 	cerr << "new password is:" << newPassword << endl;
 
 	bool result = false;
-	const int PASSWORD_LENGTH = 65;
+	//const int PASSWORD_LENGTH = 65;
 
-	char linestr[PASSWORD_LENGTH];
-	rewind(fpIn);
-	while(!feof(fpIn))
+	string linestr;
+	
+	file.clear();
+	file.seekg(0, ios::beg);
+	
+	string hashResult = hashSHA256(newPassword);
+	cerr << "hashResult is:" << hashResult << endl;
+
+	while(getline (file, linestr))
 	{
-		fgets(linestr, PASSWORD_LENGTH, fpIn);
 		cerr << "linestr is:" << linestr << endl;
-
-		string hashResult = hashSHA256(newPassword);
-		cerr << "hashResult is:" << hashResult << endl;
+		// validate linestr
+		validateSHA256(linestr);
 
 		if(linestr == hashResult)
 		{
 			result = true;
 			break;
 		}
-		// avoid comparison with \n
-		fgets(linestr, PASSWORD_LENGTH, fpIn);
 	}
 
 	cerr << "Result is:" << result << endl;
@@ -42,21 +46,23 @@ void storePassword(string const &newPassword)
 	cerr << "inside storePassword:" << endl;
 	cerr << "new password is:" << newPassword << endl;
 
-	FILE * fpOut;
-	fpOut = fopen("passwords.txt", "a");
-	if(fpOut==NULL)
+	fstream file;
+	file.open("passwords.txt", ios::app);
+	
+	if(!file.is_open())
 	{
 		cout << "couldn't open file" << endl;
 		// throw exception
-		//return (-1);
+		return;
 	}
 	
 	string hashResult = hashSHA256(newPassword);
 	cerr << "hashResult is:" << hashResult << endl;
 
-	fputs("\n", fpOut);
-	fputs(hashResult.c_str(), fpOut);
-	fclose(fpOut);
+	file << endl;
+	file << hashResult;
+	
+	file.close();
 
 	return;
 }

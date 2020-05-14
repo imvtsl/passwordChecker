@@ -1,45 +1,9 @@
-ToleranceCheck.cpp:96:48: error: When i==result.size(), result[i] is out of bounds. [stlOutOfBounds]
+ToleranceCheck.cpp:97:48: error: When i==result.size(), result[i] is out of bounds. [stlOutOfBounds]
    cerr << "Manipulated password is:" << result[i] << endl;
                                                ^
-ToleranceCheck.cpp:97:25: error: When i==result.size(), result[i] is out of bounds. [stlOutOfBounds]
-   if(isDuplicate(result[i], fpIn))
+ToleranceCheck.cpp:98:25: error: When i==result.size(), result[i] is out of bounds. [stlOutOfBounds]
+   if(isDuplicate(result[i], file))
                         ^
-ToleranceCheckDatabase.cpp:57:14: warning: Either the condition 'fpOut==NULL' is redundant or there is possible null pointer dereference: fpOut. [nullPointerRedundantCheck]
- fputs("\n", fpOut);
-             ^
-ToleranceCheckDatabase.cpp:47:10: note: Assuming that condition 'fpOut==NULL' is not redundant
- if(fpOut==NULL)
-         ^
-ToleranceCheckDatabase.cpp:46:15: note: Assignment 'fpOut=fopen("passwords.txt","a")', assigned value is 0
- fpOut = fopen("passwords.txt", "a");
-              ^
-ToleranceCheckDatabase.cpp:57:14: note: Null pointer dereference
- fputs("\n", fpOut);
-             ^
-ToleranceCheckDatabase.cpp:58:28: warning: Either the condition 'fpOut==NULL' is redundant or there is possible null pointer dereference: fpOut. [nullPointerRedundantCheck]
- fputs(hashResult.c_str(), fpOut);
-                           ^
-ToleranceCheckDatabase.cpp:47:10: note: Assuming that condition 'fpOut==NULL' is not redundant
- if(fpOut==NULL)
-         ^
-ToleranceCheckDatabase.cpp:46:15: note: Assignment 'fpOut=fopen("passwords.txt","a")', assigned value is 0
- fpOut = fopen("passwords.txt", "a");
-              ^
-ToleranceCheckDatabase.cpp:58:28: note: Null pointer dereference
- fputs(hashResult.c_str(), fpOut);
-                           ^
-ToleranceCheckDatabase.cpp:59:9: warning: Either the condition 'fpOut==NULL' is redundant or there is possible null pointer dereference: fpOut. [nullPointerRedundantCheck]
- fclose(fpOut);
-        ^
-ToleranceCheckDatabase.cpp:47:10: note: Assuming that condition 'fpOut==NULL' is not redundant
- if(fpOut==NULL)
-         ^
-ToleranceCheckDatabase.cpp:46:15: note: Assignment 'fpOut=fopen("passwords.txt","a")', assigned value is 0
- fpOut = fopen("passwords.txt", "a");
-              ^
-ToleranceCheckDatabase.cpp:59:9: note: Null pointer dereference
- fclose(fpOut);
-        ^
 ToleranceCheckHash.cpp:27:7: style: The scope of the variable 'buffer' can be reduced. [variableScope]
  char buffer[max_buffer];
       ^

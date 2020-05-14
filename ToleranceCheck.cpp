@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -65,18 +66,18 @@ int checkTolerance(string const &newPassword, string const &oldPassword, int tol
 	cerr << "tolerance of similarity is: " << toleranceOfSimilarity << endl;
 
 
-	int tolerance = -1;
+	int tolerance = toleranceOfSimilarity;
 
-	FILE * fpIn;
-	fpIn = fopen("passwords.txt", "r");
-	if(fpIn==NULL)
+	fstream file; 
+    file.open("passwords.txt");
+	if(!file.is_open())
 	{
 		cout << "couldn't open file" << endl;
 		// throw exception
-		//return (-1);
+		return (-1);
 	}
 	
-	if(isDuplicate(newPassword, fpIn))
+	if(isDuplicate(newPassword, file))
 		return 0;
 
 	bool duplicate = false;
@@ -94,19 +95,20 @@ int checkTolerance(string const &newPassword, string const &oldPassword, int tol
 		for(int i=0 ; i<=result.size()-1 ; i++)
 		{
 			cerr << "Manipulated password is:" << result[i] << endl;
-			if(isDuplicate(result[i], fpIn))
+			if(isDuplicate(result[i], file))
 			{
 				tolerance = toleranceLevel;
 				duplicate = true;
 				break;
 			}	
 		}
-		if(duplicate)
-			break;
+		if(duplicate) {
+			return tolerance;
+		}
 	}
-	fclose(fpIn);
+	file.close();
 
-	cerr << "Tolerance is:" << tolerance << endl;
+	cerr << "Tolerance is:" << (toleranceOfSimilarity+1) << endl;
 
-	return tolerance;
+	return (toleranceOfSimilarity+1);
 }
